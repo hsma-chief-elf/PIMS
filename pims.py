@@ -7,7 +7,7 @@ new_name = st.text_input(
 )
 
 new_area = st.selectbox(
-    "Which area?",
+    "Which area of work?",
     ["HSMA", "Core PenCHORD"]
 )
 
