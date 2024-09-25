@@ -19,3 +19,7 @@ with col_right:
         "What do you want to tell us? (Max 200 characters)",
         max_chars=200)
 
+new_link = st.text_input(
+    "Is there a link where we can find out more?"
+)
+
