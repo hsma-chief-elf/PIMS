@@ -57,8 +57,8 @@ with col_left:
 
 with col_mid:
     new_blurb = st.text_area(
-        "What do you want to tell us? (Max 200 characters)",
-        max_chars=200)
+        "What do you want to tell us? (Max 280 characters)",
+        max_chars=280)
     
     new_link = st.text_input(
     "Is there a link where we can find out more?"
