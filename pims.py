@@ -110,7 +110,7 @@ with col_mid:
                           stopwords=stopwords,
                           min_font_size=8).generate(joined_string)
     
-    plt.figure(figsize=(7,6.5))
+    plt.figure(figsize=(7,6.55))
     plt.axis("off")
     plt.imshow(wordcloud)
     plt.savefig("pims_wordcloud.png")
@@ -122,12 +122,17 @@ with col_right:
     tab_blurbs, tab_placeholder = st.tabs(["What's been happening?",
                                         "Placeholder"])
     with tab_blurbs:
-        for i in range(len(rows.data)-1, -1, -1):
-            st.write(f"{rows.data[i]['name']} *{rows.data[i]['area']}* ",
-                    f"({rows.data[i]['month']} {rows.data[i]['year']}) :")
-            if rows.data[i]['area'] == "HSMA":
-                st.info((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
-            else:
-                st.success((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+        with st.container(height=600):
+            for i in range(len(rows.data)-1, -1, -1):
+                st.write(f"{rows.data[i]['name']} *{rows.data[i]['area']}* ",
+                        f"({rows.data[i]['month']} {rows.data[i]['year']}) :")
+                if rows.data[i]['area'] == "HSMA":
+                    st.info((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+                else:
+                    st.success((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
   
-## Zero out text inputs after submission (after button push)
+## Add functionality for spacy to auto visualise named entities (maybe
+# organisations and names?) on whole text (all blurbs collated together)
+
+# Add scrollable column on stories
+
