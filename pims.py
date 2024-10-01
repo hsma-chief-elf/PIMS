@@ -55,16 +55,16 @@ def init_connection():
 
 supabase = init_connection()
 
-response = (
-    supabase.table("pims_table").insert({
-        "name":"Sammi Rosser",
-        "area":"HSMA",
-        "month":"Aug",
-        "year":"2023",
-        "blurb":"This is another test",
-        "link":"https://www.youtube.com/@hsma"
-    }).execute()
-)
+#response = (
+#    supabase.table("pims_table").insert({
+#        "name":"Sammi Rosser",
+#        "area":"HSMA",
+#        "month":"Aug",
+#        "year":"2023",
+#        "blurb":"This is another test",
+#        "link":"https://www.youtube.com/@hsma"
+#    }).execute()
+#)
 
 @st.cache_resource()
 def run_query():
@@ -73,5 +73,9 @@ def run_query():
 rows = run_query()
 
 for row in rows.data:
-    st.write(f"{row['name']} said {row['blurb']}")
+    st.write(f"{row['name']} *{row['area']}* ({row['month']} {row['year']})")
+    if row['area'] == "HSMA":
+        st.info((row['blurb'] + '\n\n' + row['link']))
+    else:
+        st.success((row['blurb'] + '\n\n' + row['link']))
 
