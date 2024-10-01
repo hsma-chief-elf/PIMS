@@ -5,15 +5,27 @@ from wordcloud import WordCloud, STOPWORDS
 import string
 import matplotlib.pyplot as plt
 
+st.set_page_config(layout="wide")
+
 # https://docs.streamlit.io/develop/tutorials/databases/supabase
 # Need to copy app secrets to the cloud on deployment - see instructions in link
 # above
 
 stopwords = set(STOPWORDS)
 
+def init_connection():
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+    return create_client(url, key)
+
+supabase = init_connection()
+
+def run_query():
+    return supabase.table("pims_table").select("*").execute()
+
 st.title("Welcome to PIMS - The PenCHORD Impact Store")
 
-col_left, col_right = st.columns([0.3, 0.7])
+col_left, col_mid, col_right = st.columns([0.2, 0.4, 0.4])
 
 with col_left:
     new_name = st.text_input(
@@ -43,7 +55,7 @@ with col_left:
             value=(datetime.today().year)
         )
 
-with col_right:
+with col_mid:
     new_blurb = st.text_area(
         "What do you want to tell us? (Max 200 characters)",
         max_chars=200)
@@ -52,50 +64,9 @@ with col_right:
     "Is there a link where we can find out more?"
     )
 
-def init_connection():
-    url = st.secrets["SUPABASE_URL"]
-    key = st.secrets["SUPABASE_KEY"]
-    return create_client(url, key)
-
-supabase = init_connection()
-
-def run_query():
-    return supabase.table("pims_table").select("*").execute()
-
-button_submit_story = st.button("Submit Story")
-
-if button_submit_story:
+with col_right:
     rows = run_query()
 
-    id_of_latest_entry = rows.data[(len(rows.data) - 1)]['id']
-    
-    response = (
-        supabase.table("pims_table").insert({
-            "id":(id_of_latest_entry+1),
-            "name":new_name,
-            "area":new_area,
-            "month":new_month,
-            "year":new_year,
-            "blurb":new_blurb,
-            "link":new_link
-        }).execute()
-    )
-
-rows = run_query()
-
-tab_blurbs, tab_wordcloud = st.tabs(["What's been happening?",
-                                     "Impact Word Cloud"])
-
-with tab_blurbs:
-    for i in range(len(rows.data)-1, -1, -1):
-        st.write(f"{rows.data[i]['name']} *{rows.data[i]['area']}* ",
-                f"({rows.data[i]['month']} {rows.data[i]['year']}) :")
-        if rows.data[i]['area'] == "HSMA":
-            st.info((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
-        else:
-            st.success((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
-
-with tab_wordcloud:
     all_blurb_text = ""
 
     for row in rows.data:
@@ -120,9 +91,43 @@ with tab_wordcloud:
                           stopwords=stopwords,
                           min_font_size=20).generate(joined_string)
     
-    plt.figure(figsize=(5,5))
+    plt.figure(figsize=(7,2.5))
     plt.axis("off")
     plt.imshow(wordcloud)
     plt.savefig("pims_wordcloud.png")
     st.image("pims_wordcloud.png")
+
+button_submit_story = st.button("Submit Story")
+
+if button_submit_story:
+    rows = run_query()
+
+    id_of_latest_entry = rows.data[(len(rows.data) - 1)]['id']
+    
+    response = (
+        supabase.table("pims_table").insert({
+            "id":(id_of_latest_entry+1),
+            "name":new_name,
+            "area":new_area,
+            "month":new_month,
+            "year":new_year,
+            "blurb":new_blurb,
+            "link":new_link
+        }).execute()
+    )
+
+rows = run_query()
+
+tab_blurbs, tab_placeholder = st.tabs(["What's been happening?",
+                                       "Placeholder"])
+
+with tab_blurbs:
+    for i in range(len(rows.data)-1, -1, -1):
+        st.write(f"{rows.data[i]['name']} *{rows.data[i]['area']}* ",
+                f"({rows.data[i]['month']} {rows.data[i]['year']}) :")
+        if rows.data[i]['area'] == "HSMA":
+            st.info((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+        else:
+            st.success((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+  
 ## Zero out text inputs after submission (after button push)
