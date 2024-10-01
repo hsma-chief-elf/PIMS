@@ -25,32 +25,36 @@ def run_query():
 
 st.title("Welcome to PIMS - The PenCHORD Impact Store")
 
-col_left, col_mid, col_right = st.columns([0.34, 0.33, 0.33])
+col_left, col_mid, col_right = st.columns([0.3, 0.3, 0.4])
 
 with col_left:
     with st.form("blurb_form", clear_on_submit=True):
-        new_name = st.text_input(
-            "What's your name?"
-        )
+        col_form_left, col_form_right = st.columns([0.5, 0.5])
 
-        new_area = st.selectbox(
-            "Which area of work?",
-            ["HSMA", "Core PenCHORD"]
-        )
+        with col_form_left:
+            new_name = st.text_input(
+                "What's your name?"
+            )
 
-        new_month = st.selectbox(
-            "Month",
-            ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-            "Sep", "Oct", "Nov", "Dec"],
-            index = (datetime.today().month - 1)
-        )
+            new_month = st.selectbox(
+                "Month",
+                ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+                "Sep", "Oct", "Nov", "Dec"],
+                index = (datetime.today().month - 1)
+            )
 
-        new_year = st.number_input(
-            "Year",
-            min_value=2010,
-            max_value=2099,
-            value=(datetime.today().year)
-        )
+        with col_form_right:
+            new_area = st.selectbox(
+                "Which area of work?",
+                ["HSMA", "Core PenCHORD"]
+            )
+
+            new_year = st.number_input(
+                "Year",
+                min_value=2010,
+                max_value=2099,
+                value=(datetime.today().year)
+            )
 
         new_blurb = st.text_area(
             "What do you want to tell us? (Max 280 characters)",
