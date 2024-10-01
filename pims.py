@@ -110,7 +110,7 @@ with col_mid:
                           stopwords=stopwords,
                           min_font_size=8).generate(joined_string)
     
-    plt.figure(figsize=(7,7))
+    plt.figure(figsize=(7,6.5))
     plt.axis("off")
     plt.imshow(wordcloud)
     plt.savefig("pims_wordcloud.png")
