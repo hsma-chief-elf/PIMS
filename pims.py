@@ -25,29 +25,26 @@ def run_query():
 
 st.title("Welcome to PIMS - The PenCHORD Impact Store")
 
-col_left, col_mid, col_right = st.columns([0.2, 0.4, 0.4])
+col_left, col_mid, col_right = st.columns([0.34, 0.33, 0.33])
 
 with col_left:
-    new_name = st.text_input(
-        "What's your name?"
-    )
+    with st.form("blurb_form", clear_on_submit=True):
+        new_name = st.text_input(
+            "What's your name?"
+        )
 
-    new_area = st.selectbox(
-        "Which area of work?",
-        ["HSMA", "Core PenCHORD"]
-    )
+        new_area = st.selectbox(
+            "Which area of work?",
+            ["HSMA", "Core PenCHORD"]
+        )
 
-    col_month, col_year = st.columns(2)
-
-    with col_month:
         new_month = st.selectbox(
             "Month",
             ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-             "Sep", "Oct", "Nov", "Dec"],
-             index = (datetime.today().month - 1)
+            "Sep", "Oct", "Nov", "Dec"],
+            index = (datetime.today().month - 1)
         )
 
-    with col_year:
         new_year = st.number_input(
             "Year",
             min_value=2010,
@@ -55,16 +52,33 @@ with col_left:
             value=(datetime.today().year)
         )
 
-with col_mid:
-    new_blurb = st.text_area(
-        "What do you want to tell us? (Max 280 characters)",
-        max_chars=280)
-    
-    new_link = st.text_input(
-    "Is there a link where we can find out more?"
-    )
+        new_blurb = st.text_area(
+            "What do you want to tell us? (Max 280 characters)",
+            max_chars=280)
+        
+        new_link = st.text_input(
+        "Is there a link where we can find out more?"
+        )
 
-with col_right:
+        blurb_submitted = st.form_submit_button("Submit Story")
+        if blurb_submitted:
+            rows = run_query()
+
+            id_of_latest_entry = rows.data[(len(rows.data) - 1)]['id']
+            
+            response = (
+                supabase.table("pims_table").insert({
+                    "id":(id_of_latest_entry+1),
+                    "name":new_name,
+                    "area":new_area,
+                    "month":new_month,
+                    "year":new_year,
+                    "blurb":new_blurb,
+                    "link":new_link
+                }).execute()
+            )
+
+with col_mid:
     rows = run_query()
 
     all_blurb_text = ""
@@ -85,50 +99,31 @@ with col_right:
 
     joined_string = (" ").join(lower_tokens)
 
-    wordcloud = WordCloud(width=1200,
-                          height=400,
+    wordcloud = WordCloud(width=1800,
+                          height=1800,
                           background_color='white',
                           colormap="seismic",
                           stopwords=stopwords,
                           min_font_size=20).generate(joined_string)
     
-    plt.figure(figsize=(7,2.5))
+    plt.figure(figsize=(7,7))
     plt.axis("off")
     plt.imshow(wordcloud)
     plt.savefig("pims_wordcloud.png")
     st.image("pims_wordcloud.png")
 
-button_submit_story = st.button("Submit Story")
-
-if button_submit_story:
-    rows = run_query()
-
-    id_of_latest_entry = rows.data[(len(rows.data) - 1)]['id']
-    
-    response = (
-        supabase.table("pims_table").insert({
-            "id":(id_of_latest_entry+1),
-            "name":new_name,
-            "area":new_area,
-            "month":new_month,
-            "year":new_year,
-            "blurb":new_blurb,
-            "link":new_link
-        }).execute()
-    )
-
 rows = run_query()
 
-tab_blurbs, tab_placeholder = st.tabs(["What's been happening?",
-                                       "Placeholder"])
-
-with tab_blurbs:
-    for i in range(len(rows.data)-1, -1, -1):
-        st.write(f"{rows.data[i]['name']} *{rows.data[i]['area']}* ",
-                f"({rows.data[i]['month']} {rows.data[i]['year']}) :")
-        if rows.data[i]['area'] == "HSMA":
-            st.info((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
-        else:
-            st.success((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+with col_right:
+    tab_blurbs, tab_placeholder = st.tabs(["What's been happening?",
+                                        "Placeholder"])
+    with tab_blurbs:
+        for i in range(len(rows.data)-1, -1, -1):
+            st.write(f"{rows.data[i]['name']} *{rows.data[i]['area']}* ",
+                    f"({rows.data[i]['month']} {rows.data[i]['year']}) :")
+            if rows.data[i]['area'] == "HSMA":
+                st.info((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+            else:
+                st.success((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
   
 ## Zero out text inputs after submission (after button push)
