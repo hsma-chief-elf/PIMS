@@ -1,10 +1,15 @@
 import streamlit as st
 from datetime import datetime
 from supabase import create_client, Client
+from wordcloud import WordCloud, STOPWORDS
+import string
+import matplotlib.pyplot as plt
 
 # https://docs.streamlit.io/develop/tutorials/databases/supabase
 # Need to copy app secrets to the cloud on deployment - see instructions in link
 # above
+
+stopwords = set(STOPWORDS)
 
 st.title("Welcome to PIMS - The PenCHORD Impact Store")
 
@@ -78,11 +83,46 @@ if button_submit_story:
 
 rows = run_query()
 
-for i in range(len(rows.data)-1, -1, -1):
-    st.write(f"{rows.data[i]['name']} *{rows.data[i]['area']}* ",
-             f"({rows.data[i]['month']} {rows.data[i]['year']}) :")
-    if rows.data[i]['area'] == "HSMA":
-        st.info((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
-    else:
-        st.success((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+tab_blurbs, tab_wordcloud = st.tabs(["What's been happening?",
+                                     "Impact Word Cloud"])
 
+with tab_blurbs:
+    for i in range(len(rows.data)-1, -1, -1):
+        st.write(f"{rows.data[i]['name']} *{rows.data[i]['area']}* ",
+                f"({rows.data[i]['month']} {rows.data[i]['year']}) :")
+        if rows.data[i]['area'] == "HSMA":
+            st.info((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+        else:
+            st.success((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+
+with tab_wordcloud:
+    all_blurb_text = ""
+
+    for row in rows.data:
+        all_blurb_text += row['blurb']
+        all_blurb_text += " "
+
+    tokens = all_blurb_text.split()
+
+    punctuation_mapping_table = str.maketrans('', '', string.punctuation)
+
+    tokens_stripped_of_punctuation = [
+        token.translate(punctuation_mapping_table) for token in tokens
+        ]
+    
+    lower_tokens = [token.lower() for token in tokens_stripped_of_punctuation]
+
+    joined_string = (" ").join(lower_tokens)
+
+    wordcloud = WordCloud(width=1800,
+                          height=1800,
+                          background_color='white',
+                          stopwords=stopwords,
+                          min_font_size=20).generate(joined_string)
+    
+    plt.figure(figsize=(5,5))
+    plt.axis("off")
+    plt.imshow(wordcloud)
+    plt.savefig("pims_wordcloud.png")
+    st.image("pims_wordcloud.png")
+## Zero out text inputs after submission (after button push)
