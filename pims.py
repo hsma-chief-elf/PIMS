@@ -39,7 +39,7 @@ with col_left:
         )
 
 with col_right:
-    new_burst = st.text_area(
+    new_blurb = st.text_area(
         "What do you want to tell us? (Max 200 characters)",
         max_chars=200)
     
@@ -47,7 +47,6 @@ with col_right:
     "Is there a link where we can find out more?"
     )
 
-@st.cache_resource
 def init_connection():
     url = st.secrets["SUPABASE_URL"]
     key = st.secrets["SUPABASE_KEY"]
@@ -55,27 +54,35 @@ def init_connection():
 
 supabase = init_connection()
 
-#response = (
-#    supabase.table("pims_table").insert({
-#        "name":"Sammi Rosser",
-#        "area":"HSMA",
-#        "month":"Aug",
-#        "year":"2023",
-#        "blurb":"This is another test",
-#        "link":"https://www.youtube.com/@hsma"
-#    }).execute()
-#)
-
-@st.cache_resource()
 def run_query():
     return supabase.table("pims_table").select("*").execute()
 
+button_submit_story = st.button("Submit Story")
+
+if button_submit_story:
+    rows = run_query()
+
+    id_of_latest_entry = rows.data[(len(rows.data) - 1)]['id']
+    
+    response = (
+        supabase.table("pims_table").insert({
+            "id":(id_of_latest_entry+1),
+            "name":new_name,
+            "area":new_area,
+            "month":new_month,
+            "year":new_year,
+            "blurb":new_blurb,
+            "link":new_link
+        }).execute()
+    )
+
 rows = run_query()
 
-for row in rows.data:
-    st.write(f"{row['name']} *{row['area']}* ({row['month']} {row['year']})")
-    if row['area'] == "HSMA":
-        st.info((row['blurb'] + '\n\n' + row['link']))
+for i in range(len(rows.data)-1, -1, -1):
+    st.write(f"{rows.data[i]['name']} *{rows.data[i]['area']}* ",
+             f"({rows.data[i]['month']} {rows.data[i]['year']}) :")
+    if rows.data[i]['area'] == "HSMA":
+        st.info((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
     else:
-        st.success((row['blurb'] + '\n\n' + row['link']))
+        st.success((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
 
