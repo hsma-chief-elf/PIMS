@@ -85,9 +85,10 @@ with col_right:
 
     joined_string = (" ").join(lower_tokens)
 
-    wordcloud = WordCloud(width=1800,
-                          height=1800,
+    wordcloud = WordCloud(width=1200,
+                          height=400,
                           background_color='white',
+                          colormap="seismic",
                           stopwords=stopwords,
                           min_font_size=20).generate(joined_string)
     
