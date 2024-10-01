@@ -106,9 +106,9 @@ with col_mid:
     wordcloud = WordCloud(width=1800,
                           height=1800,
                           background_color='white',
-                          colormap="seismic",
+                          colormap="winter",
                           stopwords=stopwords,
-                          min_font_size=20).generate(joined_string)
+                          min_font_size=8).generate(joined_string)
     
     plt.figure(figsize=(7,7))
     plt.axis("off")
