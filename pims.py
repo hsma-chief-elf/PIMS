@@ -1,6 +1,5 @@
 import streamlit as st
 from datetime import datetime
-#from st_supabase_connection import SupabaseConnection
 from supabase import create_client, Client
 
 # https://docs.streamlit.io/develop/tutorials/databases/supabase
@@ -48,16 +47,6 @@ with col_right:
     "Is there a link where we can find out more?"
     )
 
-# Initialise Supabase connection
-#conn = st.connection("supabase", type=SupabaseConnection)
-
-# Perform query
-#rows = conn.query("*", table="pims_table", ttl="10m").execute()
-
-# Print results
-#for row in rows.data:
-#    st.write(f"{row['name']} said {row['blurb']}")
-
 @st.cache_resource
 def init_connection():
     url = st.secrets["SUPABASE_URL"]
@@ -65,6 +54,17 @@ def init_connection():
     return create_client(url, key)
 
 supabase = init_connection()
+
+response = (
+    supabase.table("pims_table").insert({
+        "name":"Sammi Rosser",
+        "area":"HSMA",
+        "month":"Aug",
+        "year":"2023",
+        "blurb":"This is another test",
+        "link":"https://www.youtube.com/@hsma"
+    }).execute()
+)
 
 @st.cache_resource()
 def run_query():
