@@ -28,6 +28,12 @@ st.title("Welcome to PIMS - The PenCHORD Impact Store")
 col_left, col_mid, col_right = st.columns([0.3, 0.3, 0.4])
 
 with col_left:
+    st.write("Use this form to tell us about anything cool you've done or are",
+             "doing.  Has your work made an impact?  Have you started working ",
+             "on something interesting?  Have you created something useful? ",
+             "Keep it concise and easy to read for a non-expert.  Only change ",
+             "date if it's an older story.")
+
     with st.form("blurb_form", clear_on_submit=True):
         col_form_left, col_form_right = st.columns([0.5, 0.5])
 
@@ -83,6 +89,12 @@ with col_left:
             )
 
 with col_mid:
+    st.write("Here's a word cloud of the most common words coming up across ",
+             "our blurbs.  Stopwords are excluded - these are common words ",
+             "like 'the', 'and' etc.  The word cloud will automatically ",
+             "update as more blurbs are added!  Can you see common themes ",
+             "emerging?")
+
     rows = run_query()
 
     all_blurb_text = ""
@@ -134,5 +146,7 @@ with col_right:
 ## Add functionality for spacy to auto visualise named entities (maybe
 # organisations and names?) on whole text (all blurbs collated together)
 
-# Add scrollable column on stories
+# Add feedback / quotes functionality (output and input?)
+
+# Add icons to blurbs (maybe auto select icons based on text detected?)
 
