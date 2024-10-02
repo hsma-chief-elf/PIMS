@@ -6,6 +6,8 @@ import string
 import matplotlib.pyplot as plt
 import spacy
 import en_core_web_sm
+from streamlit_gsheets import GSheetsConnection
+import pandas as pd
 
 st.set_page_config(layout="wide")
 
@@ -17,6 +19,8 @@ stopwords = set(STOPWORDS)
 punctuation_mapping_table = str.maketrans('', '', string.punctuation)
 
 nlp = en_core_web_sm.load()
+
+gs_conn = st.connection("gsheets", type=GSheetsConnection)
 
 def init_connection():
     url = st.secrets["SUPABASE_URL"]
@@ -287,8 +291,10 @@ rows = run_query_main()
 rows_quotes = run_query_quotes()
 
 with col_right:
-    tab_blurbs, tab_quotes = st.tabs(["What's been happening?",
-                                      "Quotes from partners"])
+    tab_blurbs, tab_quotes, tab_h_proj_reg = st.tabs(
+        ["What's been happening?",
+         "Quotes from partners",
+         "HSMA Project Register"])
     with tab_blurbs:
         with st.container(height=600):
             for i in range(len(rows.data)-1, -1, -1):
@@ -308,8 +314,45 @@ with col_right:
                         f"*{rows_quotes.data[j]['org']}* said :")
                 st.error(rows_quotes.data[j]['quote'])
 
+    with tab_h_proj_reg:
+        col_p_reg_left, col_p_reg_right = st.columns([0.2, 0.8])
+        
+        with col_p_reg_left:
+            st.image("hsma_with_slogan.png")
 
+        with col_p_reg_right:
+            st.write("This lists all of the currently active projects running ",
+                     "within the HSMA Programme.  Click on a project to find ",
+                     "out more about it.  Projects with recent impact reports ",
+                     "are also flagged."
+                     )
+            
+        with st.container(height=490):
+            hsma_proj_reg_df = gs_conn.read()
 
+            for index, row in hsma_proj_reg_df.iterrows():
+                headline = ""
+
+                if row['Impact to Report'] == "Yes":
+                    headline += ":green[This project has impact to report!]"
+                    headline += "\n\n"
+
+                headline += (
+                    str(row['Project Code']) + " : " + row['Project Title'] + 
+                    "\n\n" + "*" + row['Lead Org'] + "*"
+                )
+
+                with st.expander(headline):
+                    st.write(f"Project Lead : {row['Lead']}")
+
+                    if row['Impact to Report'] == "Yes":
+                        st.write(
+                            f":green[IMPACT UPDATE! {row['Impact / Outcomes']}]"
+                        )
+
+                    st.write(f"Methods Used : {row['Method Area(s)']}")
+                    st.write(row['Additional Notes'])
+                    
 # FUTURE WORK  
 # Need to add en_core_web_sm when deploying
 # See https://discuss.streamlit.io/t/how-to-install-language-model-for-spacy-in-requirements-yml/30853/5
