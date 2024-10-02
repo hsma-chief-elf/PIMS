@@ -311,9 +311,7 @@ with col_right:
 
 
 # FUTURE WORK  
-## Add functionality for spacy to auto visualise named entities (maybe
-# organisations and names?) on whole text (all blurbs collated together) / word
-# clouds on organisations etc
+# Need to add en_core_web_sm when deploying
 # See https://discuss.streamlit.io/t/how-to-install-language-model-for-spacy-in-requirements-yml/30853/5
 
 # Add icons to blurbs (maybe auto select icons based on text detected?)
