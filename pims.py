@@ -49,7 +49,8 @@ def create_string_people_places_impact(rows):
             ent.label_ == "ORG" or
             ent.label_ == "GPE" or
             ent.label_ == "LOC"):
-            string_people_places_impact += str(ent)
+            underscored_string = str(ent).replace(" ", "_")
+            string_people_places_impact += underscored_string
             string_people_places_impact += " "
 
     return string_people_places_impact
@@ -249,10 +250,38 @@ with col_mid:
         st.image("quote_wordcloud.png")
 
     with tab_wc_people_places:
+        st.write(
+            "This word cloud uses AI! We use a pre-trained machine learning ",
+            "model to attempt to automatically extract people, places and ",
+            "organisations from the recorded impact blurbs, and use only ",
+            "these in the word cloud.  The word cloud updates automatically ",
+            "as more blurbs are added!")
+
         rows = run_query_main()
         returned_string_pp = create_string_people_places_impact(rows)
 
-        st.write(returned_string_pp)
+        tokens_pp = returned_string_pp.split()
+
+        pp_tokens_stripped = [
+            token.translate(punctuation_mapping_table) for token in tokens_pp
+        ]
+
+        pp_lower_tokens = [token.lower() for token in pp_tokens_stripped]
+
+        pp_joined_string = (" ").join(pp_lower_tokens)
+
+        pp_wordcloud = WordCloud(width=1800,
+                                 height=1800,
+                                 background_color='white',
+                                 colormap="seismic",
+                                 stopwords=stopwords,
+                                 min_font_size=8).generate(pp_joined_string)
+        
+        plt.figure(figsize=(7,6.55))
+        plt.axis("off")
+        plt.imshow(pp_wordcloud)
+        plt.savefig("pp_wordcloud.png")
+        st.image("pp_wordcloud.png")
 
 rows = run_query_main()
 rows_quotes = run_query_quotes()
@@ -300,4 +329,6 @@ with col_right:
 # Add initial data
 
 # Add open, applied, impactful about penchord
+
+# Add link to HSMA project register Google Sheet?
 
