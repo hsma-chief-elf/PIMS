@@ -359,8 +359,6 @@ with col_right:
 
 # Add icons to blurbs (maybe auto select icons based on text detected?)
 
-# Add theming (eg forced dark mode, grey gradient background etc)
-
 # Add logo / team photo / other graphics
 
 # Add organisation?
@@ -370,6 +368,4 @@ with col_right:
 # Add initial data
 
 # Add open, applied, impactful about penchord
-
-# Add link to HSMA project register Google Sheet?
 
