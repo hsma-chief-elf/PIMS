@@ -4,6 +4,8 @@ from supabase import create_client, Client
 from wordcloud import WordCloud, STOPWORDS
 import string
 import matplotlib.pyplot as plt
+import spacy
+import en_core_web_sm
 
 st.set_page_config(layout="wide")
 
@@ -13,6 +15,8 @@ st.set_page_config(layout="wide")
 
 stopwords = set(STOPWORDS)
 punctuation_mapping_table = str.maketrans('', '', string.punctuation)
+
+nlp = en_core_web_sm.load()
 
 def init_connection():
     url = st.secrets["SUPABASE_URL"]
@@ -26,6 +30,29 @@ def run_query_main():
 
 def run_query_quotes():
     return supabase.table("pims_quotes_table").select("*").execute()
+
+def create_string_people_places_impact(rows):
+    raw_string = ""
+
+    for row in rows.data:
+        raw_string += row['blurb']
+        raw_string += " "
+
+    doc = nlp(raw_string)
+
+    string_people_places_impact = ""
+
+    for ent in doc.ents:
+        if (ent.label_ == "PERSON" or
+            ent.label_ == "NORP" or
+            ent.label_ == "FAC" or
+            ent.label_ == "ORG" or
+            ent.label_ == "GPE" or
+            ent.label_ == "LOC"):
+            string_people_places_impact += str(ent)
+            string_people_places_impact += " "
+
+    return string_people_places_impact
 
 st.title("Welcome to PIMS - The PenCHORD Impact Store")
 
@@ -136,9 +163,10 @@ with col_left:
                 )
 
 with col_mid:
-    tab_wc_impact, tab_wc_quotes = st.tabs([
+    tab_wc_impact, tab_wc_quotes, tab_wc_people_places = st.tabs([
         "Impact Word Cloud",
-        "Quote Word Cloud"
+        "Quote Word Cloud",
+        "Impact People / Places Word Cloud"
     ])
 
     with tab_wc_impact:
@@ -219,6 +247,12 @@ with col_mid:
         plt.imshow(q_wordcloud)
         plt.savefig("quote_wordcloud.png")
         st.image("quote_wordcloud.png")
+
+    with tab_wc_people_places:
+        rows = run_query_main()
+        returned_string_pp = create_string_people_places_impact(rows)
+
+        st.write(returned_string_pp)
 
 rows = run_query_main()
 rows_quotes = run_query_quotes()
