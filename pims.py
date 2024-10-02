@@ -31,65 +31,108 @@ st.title("Welcome to PIMS - The PenCHORD Impact Store")
 col_left, col_mid, col_right = st.columns([0.3, 0.3, 0.4])
 
 with col_left:
-    st.write("Use this form to tell us about anything cool you've done or are",
-             "doing.  Has your work made an impact?  Have you started working ",
-             "on something interesting?  Have you created something useful? ",
-             "Keep it concise and easy to read for a non-expert.  Only change ",
-             "date if it's an older story.")
+    tab_blurb_form, tab_quote_form = st.tabs(["Impact Recorder",
+                                              "Quote Recorder"])
+    with tab_blurb_form:
+        st.write(
+            "Use this form to tell us about anything cool you've done or are",
+            "doing.  Has your work made an impact?  Have you started working ",
+            "on something interesting?  Have you created something useful? ",
+            "Keep it concise and easy to read for a non-expert.  Only change ",
+            "date if it's an older story.")
 
-    with st.form("blurb_form", clear_on_submit=True):
-        col_form_left, col_form_right = st.columns([0.5, 0.5])
+        with st.form("blurb_form", clear_on_submit=True):
+            col_form_left, col_form_right = st.columns([0.5, 0.5])
 
-        with col_form_left:
-            new_name = st.text_input(
-                "What's your name?"
+            with col_form_left:
+                new_name = st.text_input(
+                    "What's your name?"
+                )
+
+                new_month = st.selectbox(
+                    "Month",
+                    ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+                    "Sep", "Oct", "Nov", "Dec"],
+                    index = (datetime.today().month - 1)
+                )
+
+            with col_form_right:
+                new_area = st.selectbox(
+                    "Which area of work?",
+                    ["HSMA", "Core PenCHORD"]
+                )
+
+                new_year = st.number_input(
+                    "Year",
+                    min_value=2010,
+                    max_value=2099,
+                    value=(datetime.today().year)
+                )
+
+            new_blurb = st.text_area(
+                "What do you want to tell us? (Max 280 characters)",
+                max_chars=280)
+            
+            new_link = st.text_input(
+            "Is there a link where we can find out more?"
             )
 
-            new_month = st.selectbox(
-                "Month",
-                ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-                "Sep", "Oct", "Nov", "Dec"],
-                index = (datetime.today().month - 1)
-            )
+            blurb_submitted = st.form_submit_button("Submit Story")
+            if blurb_submitted:
+                rows = run_query_main()
 
-        with col_form_right:
-            new_area = st.selectbox(
-                "Which area of work?",
-                ["HSMA", "Core PenCHORD"]
-            )
+                id_of_latest_entry = rows.data[(len(rows.data) - 1)]['id']
+                
+                response = (
+                    supabase.table("pims_table").insert({
+                        "id":(id_of_latest_entry+1),
+                        "name":new_name,
+                        "area":new_area,
+                        "month":new_month,
+                        "year":new_year,
+                        "blurb":new_blurb,
+                        "link":new_link
+                    }).execute()
+                )
 
-            new_year = st.number_input(
-                "Year",
-                min_value=2010,
-                max_value=2099,
-                value=(datetime.today().year)
-            )
-
-        new_blurb = st.text_area(
-            "What do you want to tell us? (Max 280 characters)",
-            max_chars=280)
-        
-        new_link = st.text_input(
-        "Is there a link where we can find out more?"
+    with tab_quote_form:
+        st.write(
+            "Use this form if you want to record a quote about your ",
+            "experience of being on HSMA or working with PenCHORD.  You can ",
+            "also use this form to record a quote that someone else has ",
+            "provided, but please ensure that you have their permission to ",
+            "use.  We may use these quotes in comms materials."
         )
 
-        blurb_submitted = st.form_submit_button("Submit Story")
-        if blurb_submitted:
-            rows = run_query_main()
-
-            id_of_latest_entry = rows.data[(len(rows.data) - 1)]['id']
-            
-            response = (
-                supabase.table("pims_table").insert({
-                    "id":(id_of_latest_entry+1),
-                    "name":new_name,
-                    "area":new_area,
-                    "month":new_month,
-                    "year":new_year,
-                    "blurb":new_blurb,
-                    "link":new_link
-                }).execute()
+        with st.form("quote_form", clear_on_submit=True):
+            new_quote_name = st.text_input(
+                "Name of person providing quote"
             )
+
+            new_quote_org = st.text_input(
+                "Organisation of person providing quote"
+            )
+
+            new_quote_text = st.text_area(
+                "The quote"
+            )
+
+            quote_submitted = st.form_submit_button("Submit Quote")
+            if quote_submitted:
+                rows_quotes = run_query_quotes()
+
+                id_of_latest_entry_quotes = rows_quotes.data[
+                    (len(rows_quotes.data) - 1)
+                ]['id']
+
+                response_quote = (
+                    supabase.table("pims_quotes_table").insert({
+                        "id":(id_of_latest_entry_quotes+1),
+                        "name":new_quote_name,
+                        "org":new_quote_org,
+                        "quote":new_quote_text
+                    }).execute()
+                )
 
 with col_mid:
     st.write("Here's a word cloud of the most common words coming up across ",
