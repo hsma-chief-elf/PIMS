@@ -12,6 +12,7 @@ st.set_page_config(layout="wide")
 # above
 
 stopwords = set(STOPWORDS)
+punctuation_mapping_table = str.maketrans('', '', string.punctuation)
 
 def init_connection():
     url = st.secrets["SUPABASE_URL"]
@@ -135,44 +136,89 @@ with col_left:
                 )
 
 with col_mid:
-    st.write("Here's a word cloud of the most common words coming up across ",
-             "our blurbs.  Stopwords are excluded - these are common words ",
-             "like 'the', 'and' etc.  The word cloud will automatically ",
-             "update as more blurbs are added!  Can you see common themes ",
-             "emerging?")
+    tab_wc_impact, tab_wc_quotes = st.tabs([
+        "Impact Word Cloud",
+        "Quote Word Cloud"
+    ])
 
-    rows = run_query_main()
+    with tab_wc_impact:
+        st.write(
+            "Here's a word cloud of the most common words coming up across ",
+            "our blurbs.  Stopwords are excluded - these are common words ",
+            "like 'the', 'and' etc.  The word cloud will automatically ",
+            "update as more blurbs are added!  Can you see common themes ",
+            "emerging?")
 
-    all_blurb_text = ""
+        rows = run_query_main()
 
-    for row in rows.data:
-        all_blurb_text += row['blurb']
-        all_blurb_text += " "
+        all_blurb_text = ""
 
-    tokens = all_blurb_text.split()
+        for row in rows.data:
+            all_blurb_text += row['blurb']
+            all_blurb_text += " "
 
-    punctuation_mapping_table = str.maketrans('', '', string.punctuation)
+        tokens = all_blurb_text.split()
 
-    tokens_stripped_of_punctuation = [
-        token.translate(punctuation_mapping_table) for token in tokens
+        tokens_stripped_of_punctuation = [
+            token.translate(punctuation_mapping_table) for token in tokens
+            ]
+        
+        lower_tokens = [
+            token.lower() for token in tokens_stripped_of_punctuation]
+
+        joined_string = (" ").join(lower_tokens)
+
+        wordcloud = WordCloud(width=1800,
+                            height=1800,
+                            background_color='white',
+                            colormap="winter",
+                            stopwords=stopwords,
+                            min_font_size=8).generate(joined_string)
+        
+        plt.figure(figsize=(7,6.55))
+        plt.axis("off")
+        plt.imshow(wordcloud)
+        plt.savefig("pims_wordcloud.png")
+        st.image("pims_wordcloud.png")
+
+    with tab_wc_quotes:
+        st.write("This is a word cloud of the most common words in our quotes.",
+                 "Stopwords are excluded - these are common words like 'the', ",
+                 "'and' etc.  The word cloud will automatically update as ",
+                 "more quotes are added!  Can you see common themes emerging?")
+        
+        rows_quotes = run_query_quotes()
+
+        all_quotes_text = ""
+
+        for row in rows_quotes.data:
+            all_quotes_text += row['quote']
+            all_quotes_text += " "
+
+        tokens_quotes = all_quotes_text.split()
+
+        q_tokens_stripped_of_punctuation = [
+            token.translate(punctuation_mapping_table) 
+            for token in tokens_quotes
         ]
-    
-    lower_tokens = [token.lower() for token in tokens_stripped_of_punctuation]
 
-    joined_string = (" ").join(lower_tokens)
+        q_lower_tokens = [
+            token.lower() for token in q_tokens_stripped_of_punctuation]
+        
+        q_joined_string = (" ").join(q_lower_tokens)
 
-    wordcloud = WordCloud(width=1800,
-                          height=1800,
-                          background_color='white',
-                          colormap="winter",
-                          stopwords=stopwords,
-                          min_font_size=8).generate(joined_string)
-    
-    plt.figure(figsize=(7,6.55))
-    plt.axis("off")
-    plt.imshow(wordcloud)
-    plt.savefig("pims_wordcloud.png")
-    st.image("pims_wordcloud.png")
+        q_wordcloud = WordCloud(width=1800,
+                                height=1800,
+                                background_color='white',
+                                colormap="autumn",
+                                stopwords=stopwords,
+                                min_font_size=8).generate(q_joined_string)
+        
+        plt.figure(figsize=(7,6.55))
+        plt.axis("off")
+        plt.imshow(q_wordcloud)
+        plt.savefig("quote_wordcloud.png")
+        st.image("quote_wordcloud.png")
 
 rows = run_query_main()
 rows_quotes = run_query_quotes()
