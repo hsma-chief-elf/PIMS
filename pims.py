@@ -20,8 +20,11 @@ def init_connection():
 
 supabase = init_connection()
 
-def run_query():
+def run_query_main():
     return supabase.table("pims_table").select("*").execute()
+
+def run_query_quotes():
+    return supabase.table("pims_quotes_table").select("*").execute()
 
 st.title("Welcome to PIMS - The PenCHORD Impact Store")
 
@@ -72,7 +75,7 @@ with col_left:
 
         blurb_submitted = st.form_submit_button("Submit Story")
         if blurb_submitted:
-            rows = run_query()
+            rows = run_query_main()
 
             id_of_latest_entry = rows.data[(len(rows.data) - 1)]['id']
             
@@ -95,7 +98,7 @@ with col_mid:
              "update as more blurbs are added!  Can you see common themes ",
              "emerging?")
 
-    rows = run_query()
+    rows = run_query_main()
 
     all_blurb_text = ""
 
@@ -128,20 +131,32 @@ with col_mid:
     plt.savefig("pims_wordcloud.png")
     st.image("pims_wordcloud.png")
 
-rows = run_query()
+rows = run_query_main()
+rows_quotes = run_query_quotes()
 
 with col_right:
-    tab_blurbs, tab_placeholder = st.tabs(["What's been happening?",
-                                        "Placeholder"])
+    tab_blurbs, tab_quotes = st.tabs(["What's been happening?",
+                                      "Quotes from partners"])
     with tab_blurbs:
         with st.container(height=600):
             for i in range(len(rows.data)-1, -1, -1):
                 st.write(f"{rows.data[i]['name']} *{rows.data[i]['area']}* ",
                         f"({rows.data[i]['month']} {rows.data[i]['year']}) :")
                 if rows.data[i]['area'] == "HSMA":
-                    st.info((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+                    st.info(
+                        (rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
                 else:
-                    st.success((rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+                    st.success(
+                        (rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
+                    
+    with tab_quotes:
+        with st.container(height=600):
+            for j in range(len(rows_quotes.data)-1, -1, -1):
+                st.write(f"{rows_quotes.data[j]['name']} ",
+                        f"*{rows_quotes.data[j]['org']}* said :")
+                st.error(rows_quotes.data[j]['quote'])
+
+
   
 ## Add functionality for spacy to auto visualise named entities (maybe
 # organisations and names?) on whole text (all blurbs collated together)
@@ -149,4 +164,14 @@ with col_right:
 # Add feedback / quotes functionality (output and input?)
 
 # Add icons to blurbs (maybe auto select icons based on text detected?)
+
+# Add theming (eg forced dark mode, grey gradient background etc)
+
+# Add logo / team photo / other graphics
+
+# Add organisation?
+
+# Add comments
+
+# Add initial data
 
