@@ -357,15 +357,7 @@ with col_right:
 # Need to add en_core_web_sm when deploying
 # See https://discuss.streamlit.io/t/how-to-install-language-model-for-spacy-in-requirements-yml/30853/5
 
-# Add icons to blurbs (maybe auto select icons based on text detected?)
-
-# Add logo / team photo / other graphics
-
-# Add organisation?
-
 # Add comments
 
 # Add initial data
-
-# Add open, applied, impactful about penchord
 
