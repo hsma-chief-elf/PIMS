@@ -246,11 +246,12 @@ with col_right:
                 st.error(rows_quotes.data[j]['quote'])
 
 
-  
-## Add functionality for spacy to auto visualise named entities (maybe
-# organisations and names?) on whole text (all blurbs collated together)
 
-# Add feedback / quotes functionality (output and input?)
+# FUTURE WORK  
+## Add functionality for spacy to auto visualise named entities (maybe
+# organisations and names?) on whole text (all blurbs collated together) / word
+# clouds on organisations etc
+# See https://discuss.streamlit.io/t/how-to-install-language-model-for-spacy-in-requirements-yml/30853/5
 
 # Add icons to blurbs (maybe auto select icons based on text detected?)
 
@@ -263,4 +264,6 @@ with col_right:
 # Add comments
 
 # Add initial data
+
+# Add open, applied, impactful about penchord
 
