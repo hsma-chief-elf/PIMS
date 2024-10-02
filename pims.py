@@ -361,3 +361,5 @@ with col_right:
 
 # Add initial data
 
+# Add closed projects in project register?  Separate tab?
+
