@@ -348,7 +348,7 @@ with col_right:
         col_p_reg_left, col_p_reg_right = st.columns([0.2, 0.8])
         
         with col_p_reg_left:
-            st.image("hsma_with_slogan.png")
+            st.image("hsma_logo.png")
 
         with col_p_reg_right:
             st.write("This lists all of the currently active projects running ",
