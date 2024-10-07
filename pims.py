@@ -10,7 +10,8 @@ from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
 # Use wide layout
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide",
+                   page_title="PIMS")
 
 # Create set of stopwords and punctuation mapping table for wordcloud generation
 stopwords = set(STOPWORDS)
