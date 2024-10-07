@@ -9,32 +9,38 @@ import en_core_web_sm
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
+# Use wide layout
 st.set_page_config(layout="wide")
 
-# https://docs.streamlit.io/develop/tutorials/databases/supabase
-# Need to copy app secrets to the cloud on deployment - see instructions in link
-# above
-
+# Create set of stopwords and punctuation mapping table for wordcloud generation
 stopwords = set(STOPWORDS)
 punctuation_mapping_table = str.maketrans('', '', string.punctuation)
 
+# Load SpaCy model
 nlp = en_core_web_sm.load()
 
+# Create a Google Sheets Connection
 gs_conn = st.connection("gsheets", type=GSheetsConnection)
 
+# Function to initialise a Supabase DB connection from details stored in secrets
 def init_connection():
     url = st.secrets["SUPABASE_URL"]
     key = st.secrets["SUPABASE_KEY"]
     return create_client(url, key)
 
+# Create Supabase DB connection
 supabase = init_connection()
 
+# Function to grab everything in the Supabase table pims_table
 def run_query_main():
     return supabase.table("pims_table").select("*").execute()
 
+# Function to grab everything in the Supabase table pims_quotes_table
 def run_query_quotes():
     return supabase.table("pims_quotes_table").select("*").execute()
 
+# Function to create a string of text from a set of pims_table rows that only
+# contains text relating to entities predicted to be people or places
 def create_string_people_places_impact(rows):
     raw_string = ""
 
@@ -59,13 +65,19 @@ def create_string_people_places_impact(rows):
 
     return string_people_places_impact
 
+# Title for app
 st.title("Welcome to PIMS - The PenCHORD Impact Store")
 
+# Set up three main sections of the app
 col_left, col_mid, col_right = st.columns([0.3, 0.3, 0.4])
 
+# Left section
 with col_left:
+    # Tabs for recording inputs
     tab_blurb_form, tab_quote_form = st.tabs(["Impact Recorder",
                                               "Quote Recorder"])
+    
+    # Form for inputting a new impact blurb
     with tab_blurb_form:
         st.write(
             "Use this form to tell us about anything cool you've done or are",
@@ -111,6 +123,8 @@ with col_left:
             )
 
             blurb_submitted = st.form_submit_button("Submit Story")
+
+            # Update database with new entry on form submission
             if blurb_submitted:
                 rows = run_query_main()
 
@@ -128,6 +142,7 @@ with col_left:
                     }).execute()
                 )
 
+    # Form for inputting a new quote
     with tab_quote_form:
         st.write(
             "Use this form if you want to record a quote about your ",
@@ -151,6 +166,8 @@ with col_left:
             )
 
             quote_submitted = st.form_submit_button("Submit Quote")
+
+            # Update database with new entry on form submission
             if quote_submitted:
                 rows_quotes = run_query_quotes()
 
@@ -167,13 +184,16 @@ with col_left:
                     }).execute()
                 )
 
+# Middle section
 with col_mid:
+    # Tabs for word clouds
     tab_wc_impact, tab_wc_quotes, tab_wc_people_places = st.tabs([
         "Impact Word Cloud",
         "Quote Word Cloud",
         "Impact People / Places Word Cloud"
     ])
 
+    # Main impact word cloud generation
     with tab_wc_impact:
         st.write(
             "Here's a word cloud of the most common words coming up across ",
@@ -214,6 +234,7 @@ with col_mid:
         plt.savefig("pims_wordcloud.png")
         st.image("pims_wordcloud.png")
 
+    # Quote word cloud generation
     with tab_wc_quotes:
         st.write("This is a word cloud of the most common words in our quotes.",
                  "Stopwords are excluded - these are common words like 'the', ",
@@ -253,6 +274,8 @@ with col_mid:
         plt.savefig("quote_wordcloud.png")
         st.image("quote_wordcloud.png")
 
+    # People and places word cloud generation (using SpaCy model for Named
+    # Entity Recognition)
     with tab_wc_people_places:
         st.write(
             "This word cloud uses AI! We use a pre-trained machine learning ",
@@ -287,14 +310,19 @@ with col_mid:
         plt.savefig("pp_wordcloud.png")
         st.image("pp_wordcloud.png")
 
+# Grab contents of main table and quotes table from Supabase DB
 rows = run_query_main()
 rows_quotes = run_query_quotes()
 
+# Right section
 with col_right:
+    # Tabs for displaying existing blurbs, quotes and HSMA projects
     tab_blurbs, tab_quotes, tab_h_proj_reg = st.tabs(
         ["What's been happening?",
          "Quotes from partners",
          "HSMA Project Register"])
+    
+    # Write out existing blurbs - format differently depending on type of blurb
     with tab_blurbs:
         with st.container(height=600):
             for i in range(len(rows.data)-1, -1, -1):
@@ -307,6 +335,7 @@ with col_right:
                     st.success(
                         (rows.data[i]['blurb'] + '\n\n' + rows.data[i]['link']))
                     
+    # Write out existing quotes
     with tab_quotes:
         with st.container(height=600):
             for j in range(len(rows_quotes.data)-1, -1, -1):
@@ -314,6 +343,7 @@ with col_right:
                         f"*{rows_quotes.data[j]['org']}* said :")
                 st.error(rows_quotes.data[j]['quote'])
 
+    # Read in data in HSMA Project Register Google Sheet and write out
     with tab_h_proj_reg:
         col_p_reg_left, col_p_reg_right = st.columns([0.2, 0.8])
         
@@ -357,9 +387,9 @@ with col_right:
 # Need to add en_core_web_sm when deploying
 # See https://discuss.streamlit.io/t/how-to-install-language-model-for-spacy-in-requirements-yml/30853/5
 
-# Add comments
+# https://docs.streamlit.io/develop/tutorials/databases/supabase
+# Need to copy app secrets to the cloud on deployment - see instructions in link
+# above
 
 # Add initial data
-
-# Add closed projects in project register?  Separate tab?
 
