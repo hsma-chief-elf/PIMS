@@ -14,7 +14,7 @@ st.set_page_config(layout="wide",
                    page_title="PIMS")
 
 # Create set of stopwords and punctuation mapping table for wordcloud generation
-stopwords = set(STOPWORDS)
+#stopwords = set(STOPWORDS)
 additional_exclusion_words = ["ive"]
 stopwords = STOPWORDS.update(additional_exclusion_words)
 punctuation_mapping_table = str.maketrans('', '', string.punctuation)
