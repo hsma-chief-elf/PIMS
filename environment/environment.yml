@@ -21,5 +21,3 @@ dependencies:
     - supabase==2.8.1
     - spacy==3.7.4
     - st-gsheets-connection==0.1.0
-    - en-core-web-sm==3.7.1
-
