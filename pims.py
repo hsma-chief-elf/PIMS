@@ -284,8 +284,8 @@ with col_mid:
     # People and places word cloud generation (using SpaCy model for Named
     # Entity Recognition)
     # Exception handling added in case no entities detected
-    try:
-        with tab_wc_people_places:
+    with tab_wc_people_places:
+        try:
             st.write(
                 "This word cloud uses AI! We use a pre-trained machine learning ",
                 "model to attempt to automatically extract people, places and ",
@@ -318,8 +318,8 @@ with col_mid:
             plt.imshow(pp_wordcloud)
             plt.savefig("pp_wordcloud.png")
             st.image("pp_wordcloud.png")
-    except:
-        st.write("No people or places detected yet!")
+        except:
+            st.write("No people or places detected yet!")
 
 # Grab contents of main table and quotes table from Supabase DB
 rows = run_query_main()
