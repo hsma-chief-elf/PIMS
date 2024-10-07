@@ -142,6 +142,9 @@ with col_left:
                     }).execute()
                 )
 
+                # Celebrate with balloons
+                st.balloons()
+
     # Form for inputting a new quote
     with tab_quote_form:
         st.write(
@@ -183,6 +186,9 @@ with col_left:
                         "quote":new_quote_text
                     }).execute()
                 )
+
+                # Celebrate with balloons
+                st.balloons()
 
 # Middle section
 with col_mid:
