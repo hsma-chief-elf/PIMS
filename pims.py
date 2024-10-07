@@ -383,13 +383,3 @@ with col_right:
                     st.write(f"Methods Used : {row['Method Area(s)']}")
                     st.write(row['Additional Notes'])
                     
-# FUTURE WORK  
-# Need to add en_core_web_sm when deploying
-# See https://discuss.streamlit.io/t/how-to-install-language-model-for-spacy-in-requirements-yml/30853/5
-
-# https://docs.streamlit.io/develop/tutorials/databases/supabase
-# Need to copy app secrets to the cloud on deployment - see instructions in link
-# above
-
-# Add initial data
-
