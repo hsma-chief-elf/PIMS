@@ -283,39 +283,43 @@ with col_mid:
 
     # People and places word cloud generation (using SpaCy model for Named
     # Entity Recognition)
-    with tab_wc_people_places:
-        st.write(
-            "This word cloud uses AI! We use a pre-trained machine learning ",
-            "model to attempt to automatically extract people, places and ",
-            "organisations from the recorded impact blurbs, and use only ",
-            "these in the word cloud.  The word cloud updates automatically ",
-            "as more blurbs are added!")
+    # Exception handling added in case no entities detected
+    try:
+        with tab_wc_people_places:
+            st.write(
+                "This word cloud uses AI! We use a pre-trained machine learning ",
+                "model to attempt to automatically extract people, places and ",
+                "organisations from the recorded impact blurbs, and use only ",
+                "these in the word cloud.  The word cloud updates automatically ",
+                "as more blurbs are added!")
 
-        rows = run_query_main()
-        returned_string_pp = create_string_people_places_impact(rows)
+            rows = run_query_main()
+            returned_string_pp = create_string_people_places_impact(rows)
 
-        tokens_pp = returned_string_pp.split()
+            tokens_pp = returned_string_pp.split()
 
-        pp_tokens_stripped = [
-            token.translate(punctuation_mapping_table) for token in tokens_pp
-        ]
+            pp_tokens_stripped = [
+                token.translate(punctuation_mapping_table) for token in tokens_pp
+            ]
 
-        pp_lower_tokens = [token.lower() for token in pp_tokens_stripped]
+            pp_lower_tokens = [token.lower() for token in pp_tokens_stripped]
 
-        pp_joined_string = (" ").join(pp_lower_tokens)
+            pp_joined_string = (" ").join(pp_lower_tokens)
 
-        pp_wordcloud = WordCloud(width=1800,
-                                 height=1800,
-                                 background_color='white',
-                                 colormap="seismic",
-                                 stopwords=stopwords,
-                                 min_font_size=8).generate(pp_joined_string)
-        
-        plt.figure(figsize=(7,6.55))
-        plt.axis("off")
-        plt.imshow(pp_wordcloud)
-        plt.savefig("pp_wordcloud.png")
-        st.image("pp_wordcloud.png")
+            pp_wordcloud = WordCloud(width=1800,
+                                    height=1800,
+                                    background_color='white',
+                                    colormap="seismic",
+                                    stopwords=stopwords,
+                                    min_font_size=8).generate(pp_joined_string)
+            
+            plt.figure(figsize=(7,6.55))
+            plt.axis("off")
+            plt.imshow(pp_wordcloud)
+            plt.savefig("pp_wordcloud.png")
+            st.image("pp_wordcloud.png")
+    except:
+        st.write("No people or places detected yet!")
 
 # Grab contents of main table and quotes table from Supabase DB
 rows = run_query_main()
