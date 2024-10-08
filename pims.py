@@ -134,17 +134,38 @@ with col_left:
 
                 id_of_latest_entry = rows.data[(len(rows.data) - 1)]['id']
                 
-                response = (
-                    supabase.table("pims_table").insert({
-                        "id":(id_of_latest_entry+100),
-                        "name":new_name,
-                        "area":new_area,
-                        "month":new_month,
-                        "year":new_year,
-                        "blurb":new_blurb,
-                        "link":new_link
-                    }).execute()
-                )
+                try:
+                    response = (
+                        supabase.table("pims_table").insert({
+                            "id":(id_of_latest_entry+100),
+                            "name":new_name,
+                            "area":new_area,
+                            "month":new_month,
+                            "year":new_year,
+                            "blurb":new_blurb,
+                            "link":new_link
+                        }).execute()
+                    )
+                except:
+                    while True:
+                        try:
+                            id_of_latest_entry += 100
+
+                            response = (
+                                supabase.table("pims_table").insert({
+                                    "id":(id_of_latest_entry+100),
+                                    "name":new_name,
+                                    "area":new_area,
+                                    "month":new_month,
+                                    "year":new_year,
+                                    "blurb":new_blurb,
+                                    "link":new_link
+                                }).execute()
+                            )
+
+                            break
+                        except:
+                            pass
 
                 # Celebrate with balloons
                 st.balloons()
@@ -182,14 +203,32 @@ with col_left:
                     (len(rows_quotes.data) - 1)
                 ]['id']
 
-                response_quote = (
-                    supabase.table("pims_quotes_table").insert({
-                        "id":(id_of_latest_entry_quotes+100),
-                        "name":new_quote_name,
-                        "org":new_quote_org,
-                        "quote":new_quote_text
-                    }).execute()
-                )
+                try:
+                    response_quote = (
+                        supabase.table("pims_quotes_table").insert({
+                            "id":(id_of_latest_entry_quotes+100),
+                            "name":new_quote_name,
+                            "org":new_quote_org,
+                            "quote":new_quote_text
+                        }).execute()
+                    )
+                except:
+                    while True:
+                        try:
+                            id_of_latest_entry_quotes += 100
+
+                            response_quote = (
+                                supabase.table("pims_quotes_table").insert({
+                                    "id":(id_of_latest_entry_quotes+100),
+                                    "name":new_quote_name,
+                                    "org":new_quote_org,
+                                    "quote":new_quote_text
+                                }).execute()
+                            )
+
+                            break
+                        except:
+                            pass
 
                 # Celebrate with balloons
                 st.balloons()
