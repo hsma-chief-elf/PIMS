@@ -136,7 +136,7 @@ with col_left:
                 
                 response = (
                     supabase.table("pims_table").insert({
-                        "id":(id_of_latest_entry+1),
+                        "id":(id_of_latest_entry+100),
                         "name":new_name,
                         "area":new_area,
                         "month":new_month,
@@ -184,7 +184,7 @@ with col_left:
 
                 response_quote = (
                     supabase.table("pims_quotes_table").insert({
-                        "id":(id_of_latest_entry_quotes+1),
+                        "id":(id_of_latest_entry_quotes+100),
                         "name":new_quote_name,
                         "org":new_quote_org,
                         "quote":new_quote_text
