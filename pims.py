@@ -416,7 +416,7 @@ with col_right:
                      )
             
         with st.container(height=490):
-            hsma_proj_reg_df = gs_conn.read()
+            hsma_proj_reg_df = gs_conn.read(ttl=60)
 
             for index, row in hsma_proj_reg_df.iterrows():
                 headline = ""
