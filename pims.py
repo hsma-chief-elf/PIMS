@@ -70,6 +70,7 @@ def create_string_people_places_impact(rows):
 
 # Title for app
 st.title("Welcome to PIMS - The PenCHORD Impact Store")
+st.write("There is currently an issue adding blurbs.  A fix is incoming.")
 
 # Set up three main sections of the app
 col_left, col_mid, col_right = st.columns([0.3, 0.3, 0.4])
